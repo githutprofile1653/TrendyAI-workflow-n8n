@@ -1,0 +1,180 @@
+{
+  "name": "Trendy AI Topics workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Research and identify the top trending topics in AI from the past 7 days. Include key developments, breakthrough technologies, major announcements, and emerging trends.",
+        "options": {
+          "systemMessage": "You are a technology trends research assistant specializing in AI.\n\nYour task is to:\n1. Use the Tavily Search tool to find the latest trending topics in AI \n2. Focus on content published within the last 7 days\n3. Search reputable tech news sources, research publications, and industry announcements\n4. Identify: breakthrough technologies, major product launches, regulatory updates, market trends, and innovative applications\n\nIMPORTANT:\n- Cover AI \n- Prioritize significant developments over minor news\n- Include context and why each trend matters\n- Cite sources where possible\n\nFormat your response as a structured report with:\n## AI Trends\n- Trend 1: [Title] - [Brief description and significance]\n- Trend 2: [Title] - [Brief description and significance]\n\n\n## Key Takeaways\n[Summary of the most important insights]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        288,
+        -32
+      ],
+      "id": "7d77dd53-272b-4951-ae7d-a7d7377488a7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        208,
+        176
+      ],
+      "id": "75c989ac-f9f7-4e9d-8832-7c6c8aefadb2",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "MAq3iXRQxI8oP11f",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        432,
+        192
+      ],
+      "id": "36ccd7c3-1075-4278-9ba0-69a2c7c3baee",
+      "name": "Search in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "r1i1KKdVdn6qhVbR",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "4ebe77b8-7b57-4073-a9fe-e9aa2f642a3f",
+      "name": "Schedule Daily Analysis",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output }}",
+        "options": {}
+      },
+      "id": "40ac1b48-6291-48d6-8b77-303302fa7db9",
+      "name": "Convert to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "id": "d78a2166-375e-472e-96d7-2fc8340df466",
+      "name": "Convert to PDF",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        864,
+        -32
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Daily Analysis": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to HTML": {
+      "main": [
+        [
+          {
+            "node": "Convert to PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f668e89f-f21e-42fa-a440-468e79a57cf9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e5428a8fe932eaafef9dcb2ee4ccfd50b69ba8fc4311f54201d0f7206ab7ea9c"
+  },
+  "id": "NDsQ1eFRBzQorZX4",
+  "tags": []
+}
